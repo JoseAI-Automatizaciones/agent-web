@@ -10,9 +10,8 @@
       }
     }
   ],
-  "routes": [
-    {"src": "/widget.js", "dest": "/dist/widget.js"},
-    {"src": "/config.html", "dest": "/dist/config.html"},
-    {"src": "/config", "dest": "/dist/config.html"}
+  "rewrites": [
+    {"source": "/config", "destination": "/dist/config.html"},
+    {"source": "/widget.js", "destination": "/dist/widget.js"}
   ]
 }
