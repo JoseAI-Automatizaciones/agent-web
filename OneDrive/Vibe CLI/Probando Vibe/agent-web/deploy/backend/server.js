@@ -1,17 +1,18 @@
 /**
  * @file server.js
  * @description Servidor backend para agent-web - Proxy a OpenAI API
+ * Adaptado para Vercel Serverless Functions
  * @author agent-web
  */
 
-import http from 'node:http';
 import { PORT, NODE_ENV, CORS_ORIGIN } from './config/index.js';
-import { withCors, withAuth, withIpRateLimit, logger } from './middleware/auth.js';
+import { logger } from './middleware/auth.js';
 import { chatHandler, tokensHandler } from './routes/chat.js';
 import { checkIpRateLimit } from './middleware/rate-limiter.js';
 
-// ===== Crear Servidor HTTP =====
-const server = http.createServer(async (req, res) => {
+// ===== Request Handler para Vercel Serverless Functions =====
+// Vercel pasa el request y response directamente, sin necesitar server.listen()
+export default async function handler(req, res) {
   try {
     // Configurar CORS headers
     res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN);
@@ -30,7 +31,7 @@ const server = http.createServer(async (req, res) => {
     }
     
     // Log de la peticion
-    logger.info(`${req.method} ${req.url} - ${req.socket.remoteAddress || 'unknown'}`);
+    logger.info(`${req.method} ${req.url} - ${req.socket?.remoteAddress || req.headers['x-forwarded-for'] || 'unknown'}`);
     
     // ===== Rutas =====
     
@@ -49,7 +50,7 @@ const server = http.createServer(async (req, res) => {
     // Proxy a OpenAI Chat API
     if (req.method === 'POST' && req.url === '/api/chat') {
       // Validar rate limiting por IP
-      const ip = req.socket.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
+      const ip = req.socket?.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
       const rateLimit = checkIpRateLimit(ip);
       
       if (!rateLimit.allowed) {
@@ -69,7 +70,7 @@ const server = http.createServer(async (req, res) => {
     
     // Generar tokens efimeros (Realtime API)
     if (req.method === 'POST' && req.url === '/api/tokens') {
-      await withIpRateLimit(withCors(tokensHandler))(req, res);
+      await tokensHandler(req, res);
       return;
     }
     
@@ -95,55 +96,61 @@ const server = http.createServer(async (req, res) => {
       code: 'INTERNAL_ERROR'
     }));
   }
-});
+}
 
-// ===== Manejar errores del servidor =====
-server.on('error', (error) => {
-  logger.error(`Error del servidor: ${error.message}`);
-  process.exit(1);
-});
-
-// ===== Manejar cierre graceful =====
-process.on('SIGTERM', () => {
-  logger.info('Recibida senal SIGTERM. Cerrando servidor...');
-  server.close(() => {
-    logger.info('Servidor cerrado.');
-    process.exit(0);
+// ===== Para uso local (fuera de Vercel) =====
+// Solo se usa cuando se ejecuta con `node server.js` localmente
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL_ENV !== '1') {
+  import http from 'node:http';
+  
+  const server = http.createServer(handler);
+  
+  // Manejar errores del servidor
+  server.on('error', (error) => {
+    logger.error(`Error del servidor: ${error.message}`);
+    process.exit(1);
   });
   
-  // Forzar cierre despues de 30 segundos
-  setTimeout(() => {
-    logger.error('Cierre forzado despues de timeout.');
-    process.exit(1);
-  }, 30000);
-});
-
-process.on('SIGINT', () => {
-  logger.info('Recibida senal SIGINT. Cerrando servidor...');
-  server.close(() => {
-    logger.info('Servidor cerrado.');
-    process.exit(0);
+  // Manejar cierre graceful
+  process.on('SIGTERM', () => {
+    logger.info('Recibida senal SIGTERM. Cerrando servidor...');
+    server.close(() => {
+      logger.info('Servidor cerrado.');
+      process.exit(0);
+    });
+    
+    setTimeout(() => {
+      logger.error('Cierre forzado despues de timeout.');
+      process.exit(1);
+    }, 30000);
   });
   
-  setTimeout(() => {
-    logger.error('Cierre forzado despues de timeout.');
-    process.exit(1);
-  }, 30000);
-});
-
-// ===== Iniciar Servidor =====
-server.listen(PORT, () => {
-  logger.info(`═══════════════════════════════════════════`);
-  logger.info(`🚀 Backend server de agent-web funcionando`);
-  logger.info(`   Entorno: ${NODE_ENV}`);
-  logger.info(`   Puerto: ${PORT}`);
-  logger.info(`   URL: http://localhost:${PORT}`);
-  logger.info(`═══════════════════════════════════════════`);
-  logger.info('Endpoints disponibles:');
-  logger.info('  POST /api/chat - Proxy a OpenAI Chat API');
-  logger.info('  POST /api/tokens - Generar tokens efimeros');
-  logger.info('  GET /api/health - Health check');
-  logger.info(`═══════════════════════════════════════════`);
-});
-
-export default server;
+  process.on('SIGINT', () => {
+    logger.info('Recibida senal SIGINT. Cerrando servidor...');
+    server.close(() => {
+      logger.info('Servidor cerrado.');
+      process.exit(0);
+    });
+    
+    setTimeout(() => {
+      logger.error('Cierre forzado despues de timeout.');
+      process.exit(1);
+    }, 30000);
+  });
+  
+  // Iniciar Servidor local
+  const PORT_LOCAL = PORT || 3002;
+  server.listen(PORT_LOCAL, () => {
+    logger.info(`═══════════════════════════════════════════`);
+    logger.info(`🚀 Backend server de agent-web funcionando`);
+    logger.info(`   Entorno: ${NODE_ENV}`);
+    logger.info(`   Puerto: ${PORT_LOCAL}`);
+    logger.info(`   URL: http://localhost:${PORT_LOCAL}`);
+    logger.info(`═══════════════════════════════════════════`);
+    logger.info('Endpoints disponibles:');
+    logger.info('  POST /api/chat - Proxy a OpenAI Chat API');
+    logger.info('  POST /api/tokens - Generar tokens efimeros');
+    logger.info('  GET /api/health - Health check');
+    logger.info(`═══════════════════════════════════════════`);
+  });
+}
