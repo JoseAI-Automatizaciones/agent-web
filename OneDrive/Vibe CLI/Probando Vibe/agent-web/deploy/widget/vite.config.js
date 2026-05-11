@@ -6,7 +6,6 @@
 
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-<<<<<<< HEAD
 import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 
 // Funcion para copiar directorio recursivamente
@@ -30,8 +29,6 @@ function copyDir(src, dest) {
     }
   }
 }
-=======
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
 
 export default defineConfig({
   // Configuracion base para desarrollo y produccion
@@ -56,15 +53,9 @@ export default defineConfig({
         // Salida como IIFE (Immediately Invoked Function Expression)
         format: 'iife',
         // Nombre de la variable global
-<<<<<<< HEAD
         name: 'WebAgent',
         // Entry file name - Cambiado a widget.js para Vercel
         entryFileNames: 'widget.js',
-=======
-        name: 'AgentWeb',
-        // Entry file name
-        entryFileNames: 'agent-web.js',
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
         // Chunk file names
         chunkFileNames: 'chunks/[name]-[hash].js',
         // Asset file names
@@ -73,7 +64,6 @@ export default defineConfig({
     },
     // Tamanos de chunk
     chunkSizeWarningLimit: 500,
-<<<<<<< HEAD
     // Limite de tamano del bundle
     reportCompressedSize: true
   },
@@ -94,60 +84,6 @@ export default defineConfig({
       }
     }
   ],
-=======
-    // Limite de tamaño del bundle
-    reportCompressedSize: true
-  },
-  
-  // Configuracion para testing con Vitest
-  test: {
-    // Entorno de testing (jsdom para tests del DOM)
-    environment: 'jsdom',
-    
-    // Habilitar globales (describe, it, expect, etc.)
-    globals: true,
-    
-    // Setup file para configuracion global
-    setupFiles: './tests/setup.js',
-    
-    // Incluir todos los archivos de test
-    include: ['src/**/*.{test,spec}.js'],
-    
-    // Excluir node_modules y otros directorios
-    exclude: ['node_modules', 'dist', 'coverage'],
-    
-    // Cobertura de codigo
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'tests/',
-        '**/*.config.js',
-        '**/*.test.js',
-        '**/*.spec.js'
-      ]
-    },
-    
-    // Timeout para tests
-    testTimeout: 10000,
-    
-    // Retry para tests fallidos
-    retries: 1,
-    
-    // Output para tests
-    outputFile: {
-      junit: './test-results.xml'
-    },
-    
-    // Mock de CSS para tests
-    css: {
-      modules: {
-        classNameStrategy: 'non-scoped'
-      }
-    }
-  },
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
   
   // Configuracion para desarrollo
   server: {
@@ -167,38 +103,5 @@ export default defineConfig({
   preview: {
     port: 4173,
     open: false
-<<<<<<< HEAD
   }
-=======
-  },
-  
-  // Plugins (pueden anadirse plugins adicionales si es necesario)
-  plugins: [
-    // Plugin para compressao
-    {
-      name: 'compress',
-      apply: 'build',
-      transformIndexHtml: {
-        order: 'post',
-        handler: async (html, { filename }) => {
-          // Compresion minima para mantener legibilidad
-          return html.replace(/\s+/g, ' ').trim();
-        }
-      }
-    }
-  ],
-  
-  // Optimizaciones
-  optimizeDeps: {
-    include: [
-      // Dependencias que deben ser pre-bundleadas
-    ],
-    exclude: [
-      // Dependencias que NO deben ser pre-bundleadas
-    ]
-  },
-  
-  // Cache
-  cacheDir: 'node_modules/.vite-cache'
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
 });
