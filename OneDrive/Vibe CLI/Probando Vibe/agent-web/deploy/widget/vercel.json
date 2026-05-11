@@ -5,13 +5,8 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "installCommand": "npm install && npm run build"
+        "distDir": "dist"
       }
     }
-  ],
-  "rewrites": [
-    {"source": "/config", "destination": "/dist/config.html"},
-    {"source": "/widget.js", "destination": "/dist/widget.js"}
   ]
 }
