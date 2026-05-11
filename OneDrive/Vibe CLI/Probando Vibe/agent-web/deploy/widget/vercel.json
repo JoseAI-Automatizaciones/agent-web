@@ -12,11 +12,7 @@
   ],
   "routes": [
     {"src": "/widget.js", "dest": "/dist/widget.js"},
-    {"src": "/widget.min.js", "dest": "/dist/widget.min.js"},
     {"src": "/config.html", "dest": "/dist/config.html"},
-    {"src": "/config.css", "dest": "/dist/config-ui.css"},
-    {"src": "/config.js", "dest": "/dist/config-ui.js"},
-    {"src": "/config", "dest": "/dist/config.html"},
-    {"src": "/(.*)", "dest": "/$1"}
+    {"src": "/config", "dest": "/dist/config.html"}
   ]
 }
