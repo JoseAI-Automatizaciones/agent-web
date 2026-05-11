@@ -3,6 +3,7 @@
  * @description Cliente de LLM para el widget agent-web
  * Se conecta a OpenAI Chat API para obtener respuestas inteligentes
  * Opcionalmente usa backend proxy para evitar CORS
+ * Soporta API keys de proyectos de OpenAI (sk-proj-*)
  * @author agent-web
  */
 
@@ -79,7 +80,7 @@ let currentRequest = null;
  * @property {number} frequencyPenalty - Penalizacion de frecuencia
  * @property {number} presencePenalty - Penalizacion de presencia
  * @property {boolean} stream - Si usar streaming
- * @property {boolean} includeHistory - Incluir historial de conversación (default: true)
+ * @property {boolean} includeHistory - Incluir historial de conversacion (default: true)
  * @property {number} historyLength - Numero de mensajes del historial a incluir (default: todos)
  */
 
@@ -108,7 +109,7 @@ function generateContextId() {
 }
 
 /**
- * Obtiene el historial de la conversación actual
+ * Obtiene el historial de la conversacion actual
  * @returns {Array<ChatMessage>}
  */
 export function getConversationHistory() {
@@ -116,7 +117,7 @@ export function getConversationHistory() {
 }
 
 /**
- * Obtiene el ID de la conversación actual
+ * Obtiene el ID de la conversacion actual
  * @returns {string}
  */
 export function getConversationId() {
@@ -124,7 +125,7 @@ export function getConversationId() {
 }
 
 /**
- * Limpia el historial de la conversación
+ * Limpia el historial de la conversacion
  * @param {boolean=} keepContext - Si mantener el contexto de la pagina (default: false)
  * @returns {void}
  */
@@ -144,8 +145,8 @@ export function clearConversation(keepContext = false) {
 }
 
 /**
- * Añade un mensaje al historial de la conversación
- * @param {ChatMessage} message - Mensaje a añadir
+ * Anade un mensaje al historial de la conversacion
+ * @param {ChatMessage} message - Mensaje a anadir
  * @returns {void}
  */
 export function addToConversationHistory(message) {
@@ -155,7 +156,7 @@ export function addToConversationHistory(message) {
 }
 
 /**
- * Establece el contexto inicial de la conversación (mensaje system)
+ * Establece el contexto inicial de la conversacion (mensaje system)
  * @param {string} context - Contexto inicial
  * @returns {void}
  */
@@ -163,7 +164,7 @@ export function setConversationContext(context) {
   // Limpiar historial existente
   conversationContext.history = [];
   
-  // Añadir nuevo contexto system
+  // Anadir nuevo contexto system
   if (context) {
     conversationContext.history.push({
       role: 'system',
@@ -185,7 +186,7 @@ export function setApiKey(key) {
   } else {
     apiKey = null;
     removeSessionStorage(STORAGE_KEYS.API_KEY);
-    // También limpiar localStorage por compatibilidad hacia atrás
+    // Tambien limpiar localStorage por compatibilidad hacia atras
     removeLocalStorage(STORAGE_KEYS.API_KEY);
   }
 }
@@ -214,6 +215,7 @@ export function clearApiKey() {
 
 /**
  * Valida una API key de OpenAI
+ * Soporta: sk-*, pk-*, sk-proj-* (nuevos formatos de proyectos)
  * @param {string} key - API key a validar
  * @returns {boolean} - True si la key tiene formato valido
  */
@@ -222,9 +224,11 @@ export function isValidApiKey(key) {
     return false;
   }
   
-  // Formato tipico: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  // o pk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (para proyectos)
-  return /^(sk-|pk-)[a-zA-Z0-9]{32,}$/.test(key.trim());
+  // Formato tipico:
+  // - sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (legacy)
+  // - pk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (legacy)
+  // - sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (nuevos proyectos)
+  return /^(sk-|pk-|sk-proj-)[a-zA-Z0-9_-]{32,}$/.test(key.trim());
 }
 
 /**
@@ -281,7 +285,7 @@ export function getPageContext(maxTokens) {
  * @param {string|Array<ChatMessage>} userQuery - Consulta del usuario
  * @param {Object=} options - Opciones adicionales
  * @param {number} options.maxTokens - Tokens maximos para el contexto
- * @param {boolean} options.includeHistory - Incluir historial de conversación (default: true)
+ * @param {boolean} options.includeHistory - Incluir historial de conversacion (default: true)
  * @param {number} options.historyLength - Numero de mensajes del historial a incluir
  * @returns {Array<ChatMessage>} - Mensajes para el LLM
  */
@@ -302,13 +306,13 @@ export function buildPrompt(userQuery, options = {}) {
   // Construir el array de mensajes
   const messages = [];
   
-  // Añadir contexto de la pagina como mensaje system
+  // Anadir contexto de la pagina como mensaje system
   messages.push({
     role: 'system',
     content: context
   });
   
-  // Añadir historial de conversacion (sin el mensaje system inicial)
+  // Anadir historial de conversacion (sin el mensaje system inicial)
   if (includeHistory && conversationContext.history.length > 0) {
     const history = conversationContext.history.filter(msg => msg.role !== 'system');
     
@@ -317,12 +321,12 @@ export function buildPrompt(userQuery, options = {}) {
       const startIndex = Math.max(0, history.length - historyLength);
       messages.push(...history.slice(startIndex));
     } else {
-      // Añadir todo el historial
+      // Anadir todo el historial
       messages.push(...history);
     }
   }
   
-  // Añadir el mensaje del usuario
+  // Anadir el mensaje del usuario
   messages.push({
     role: 'user',
     content: userQuery
@@ -338,7 +342,7 @@ export function buildPrompt(userQuery, options = {}) {
  * @returns {number} - Numero estimado de tokens
  */
 function estimateTokenCount(text) {
-  // Estimacion aproximada: 4 caracteres = 1 token (para ingles/español)
+  // Estimacion aproximada: 4 caracteres = 1 token (para ingles/espanol)
   // Esto es una simplificacion, para mayor precision se necesitaria un tokenizer
   return Math.ceil(text.length / 4);
 }
@@ -376,7 +380,7 @@ function adjustHistoryForTokenLimit(messages, maxTokens) {
   let remainingTokens = maxTokens - estimateTokenCount(systemMessage.content);
   const adjustedMessages = [systemMessage];
   
-  // Añadir mensajes desde el final (los mas recientes primero)
+  // Anadir mensajes desde el final (los mas recientes primero)
   for (let i = otherMessages.length - 1; i >= 0; i--) {
     const msg = otherMessages[i];
     const msgTokens = estimateTokenCount(msg.content);
@@ -508,7 +512,7 @@ export async function chat(messages, options = {}) {
     if (data.choices && data.choices.length > 0) {
       const responseContent = data.choices[0].message?.content || '';
       
-      // Añadir la respuesta al historial de conversacion
+      // Anadir la respuesta al historial de conversacion
       addToConversationHistory({
         role: 'user',
         content: Array.isArray(messages) ? messages[messages.length - 1]?.content || '' : messages
@@ -663,7 +667,7 @@ export async function streamChat(messages, onChunk, options = {}) {
       }
     }
     
-    // Añadir al historial de conversacion
+    // Anadir al historial de conversacion
     addToConversationHistory({
       role: 'user',
       content: Array.isArray(messages) ? messages[messages.length - 1]?.content || '' : messages
@@ -786,7 +790,7 @@ Reglas:
     // Parsear el JSON de la respuesta
     try {
       // Buscar el JSON en la respuesta
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      const jsonMatch = response.match(/\{[\[\]\s\S]*\}/);
       if (jsonMatch) {
         return JSON.parse(jsonMatch[0]);
       }
