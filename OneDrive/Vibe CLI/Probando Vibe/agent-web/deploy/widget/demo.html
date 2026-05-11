@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pagina de demostracion para el widget Agent-Web - Asistente de voz con IA">
+  <title>Agent-Web Widget Demo</title>
+  <style>
+    /* Estilos para la pagina de demo */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #fff, #e0e0e0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+
+    .demo-section {
+      padding: 30px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .demo-section:last-child {
+      border-bottom: none;
+    }
+
+    .demo-section h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .demo-section h2 .icon {
+      width: 30px;
+      height: 30px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .demo-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .demo-card:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    }
+
+    .demo-card h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+
+    .demo-card p {
+      color: #666;
+      margin-bottom: 15px;
+      font-size: 0.9em;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .input-group input,
+    .input-group textarea,
+    .input-group select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .input-group input:focus,
+    .input-group textarea:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .input-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .form-row .input-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .test-instructions {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      border-left: 5px solid #667eea;
+    }
+
+    .test-instructions h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+    }
+
+    .test-instructions ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .test-instructions li {
+      padding: 8px 0;
+      padding-left: 30px;
+      position: relative;
+      color: #555;
+    }
+
+    .test-instructions li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .voice-commands {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+    }
+
+    .voice-command {
+      background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+      font-size: 0.9em;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+
+    .voice-command:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .voice-command strong {
+      color: #667eea;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .voice-command code {
+      background: rgba(255, 255, 255, 0.5);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: #555;
+    }
+
+    .security-warning {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border-left: 5px solid #ff5252;
+      color: #d32f2f;
+    }
+
+    .security-warning h3 {
+      color: #d32f2f;
+      margin-bottom: 10px;
+    }
+
+    .security-warning ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .security-warning li {
+      padding: 5px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .security-warning li:before {
+      content: "✗";
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 15px;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 12px;
+      min-width: 150px;
+    }
+
+    .stat-number {
+      font-size: 2em;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #666;
+      background: #f8f9fa;
+      margin-top: 40px;
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .demo-section {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8em;
+      }
+      
+      .form-row {
+        flex-direction: column;
+      }
+      
+      .form-row .input-group {
+        min-width: 100%;
+      }
+      
+      .voice-commands {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Estilos para el widget (opcional, para testing) */
+    #agent-web-container {
+      z-index: 999999 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎤 Agent-Web Demo</h1>
+      <p>Asistente de Voz con IA para cualquier página web</p>
+    </header>
+
+    <div class="demo-section">
+      <div class="test-instructions">
+        <h2>📋 Instrucciones para Testear</h2>
+        <ul>
+          <li><strong>Haz clic en el botón flotante</strong> (abajo a la derecha) para abrir el widget</li>
+          <li><strong>Permite el micrófono</strong> cuando el navegador lo pida</li>
+          <li><strong>Habla claramente</strong> o escribe tus comandos</li>
+          <li><strong>Prueba los comandos de voz</strong> listados abajo</li>
+          <li><strong>Observa las respuestas</strong> y el comportamiento del widget</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ========== SECCION DE ELEMENTOS PARA TESTEAR ========== -->
+    
+    <div class="demo-section">
+      <h2>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 7L12 12L22 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Elementos Interactivos
+      </h2>
+      
+      <div class="demo-grid">
+        <!-- Botones -->
+        <div class="demo-card">
+          <h3>🔘 Botones</h3>
+          <p>Prueba: "Haz clic en el botón [nombre]"</p>
+          <div class="actions">
+            <button id="btn-primary" class="btn">Botón Principal</button>
+            <button id="btn-secondary" class="btn btn-secondary">Botón Secundario</button>
+            <button class="btn btn-success">Botón Éxito</button>
+            <button class="btn btn-warning">Botón Advertencia</button>
+            <button class="btn btn-danger">Botón Peligro</button>
+          </div>
+        </div>
+
+        <!-- Formularios -->
+        <div class="demo-card">
+          <h3>📝 Formularios</h3>
+          <p>Prueba: "Escribe [texto] en [campo]" o "Llena el campo [nombre] con [valor]"</p>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Nombre</label>
+              <input type="text" id="input-name" placeholder="Escribe tu nombre">
+            </div>
+            <div class="input-group">
+              <label>Email</label>
+              <input type="email" id="input-email" placeholder="tu@email.com">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Mensaje</label>
+            <textarea id="textarea-message" placeholder="Escribe un mensaje..."></textarea>
+          </div>
+          <div class="input-group">
+            <label>Selecciona una opción</label>
+            <select id="select-option">
+              <option value="">-- Selecciona --</option>
+              <option value="opcion1">Opción 1</option>
+              <option value="opcion2">Opción 2</option>
+              <option value="opcion3">Opción 3</option>
+            </select>
+          </div>
+          <button class="btn btn-success">Enviar Formulario</button>
+        </div>
+
+        <!-- Búsqueda -->
+        <div class="demo-card">
+          <h3>🔍 Búsqueda</h3>
+          <p>Prueba: "Busca [término]"</p>
+          <div class="input-group">
+            <label>Buscar</label>
+            <input type="search" id="search-input" placeholder="¿Qué estás buscando?">
+          </div>
+          <button class="btn">Buscar</button>
+        </div>
+
+        <!-- Navegación -->
+        <div class="demo-card">
+          <h3>🧭 Navegación</h3>
+          <p>Prueba: "Ve a [sección]", "Desplázate hacia arriba/abajo"</p>
+          <div class="actions" style="flex-direction: column; gap: 10px;">
+            <a href="#section1" class="btn">Ir a Sección 1</a>
+            <a href="#section2" class="btn btn-secondary">Ir a Sección 2</a>
+            <a href="#section3" class="btn btn-success">Ir a Sección 3</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SECCION DE CONTENIDO LARGO ========== -->
+    
+    <div class="demo-section">
+      <h2>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 2H6C5.46957 2 4.75 2.76142 4.75 3.25V20.75C4.75 21.2386 5.46957 22 6 22H18C18.5304 22 19.25 21.2386 19.25 20.75V20.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18 2V7.5C18 7.77614 17.7761 8 17.5 8H14.5C14.2239 8 14 7.77614 14 7.5V2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 13.5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 17.5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 8H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Contenido de la Página
+      </h2>
+      
+      <div class="demo-grid">
+        <!-- Artículo -->
+        <div class="demo-card">
+          <h3>📰 Artículo de Ejemplo</h3>
+          <p>Prueba: "¿Qué dice el título?", "Lee el primer párrafo", "Resúmeme este artículo"</p>
+          <article>
+            <h4>Título del Artículo</h4>
+            <p>Este es el primer párrafo del artículo. Contiene información importante sobre el widget Agent-Web y sus capacidades.</p>
+            <p>El widget permite interactuar con cualquier página web mediante comandos de voz. Es completamente client-side y respeta la privacidad del usuario.</p>
+            <p>Puedes hacer clic en botones, llenar formularios, buscar información y navegar por la página usando solo tu voz.</p>
+          </article>
+        </div>
+
+        <!-- Productos (para e-commerce) -->
+        <div class="demo-card">
+          <h3>🛒 Productos</h3>
+          <p>Prueba: "Muestra los productos", "¿Cuánto cuesta el primer producto?"</p>
+          <div style="display: grid; gap: 15px;">
+            <div class="product" data-product-id="1">
+              <h4>Producto 1</h4>
+              <p class="price">$99.99</p>
+              <p>Descripción del producto 1. Un producto de alta calidad.</p>
+              <button class="btn btn-secondary">Añadir al carrito</button>
+            </div>
+            <div class="product" data-product-id="2">
+              <h4>Producto 2</h4>
+              <p class="price">$149.99</p>
+              <p>Descripción del producto 2. Mejor calidad que el anterior.</p>
+              <button class="btn btn-secondary">Añadir al carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista -->
+        <div class="demo-card">
+          <h3>📋 Lista de Elementos</h3>
+          <p>Prueba: "¿Cuántos elementos hay en la lista?", "Nombra el tercer elemento"</p>
+          <ul style="list-style: none; padding: 0;">
+            <li style="padding: 8px 0; border-bottom: 1px solid #eee;">Elemento 1</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid #eee;">Elemento 2</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid #eee;">Elemento 3</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid #eee;">Elemento 4</li>
+            <li style="padding: 8px 0;">Elemento 5</li>
+          </ul>
+        </div>
+
+        <!-- Tabla -->
+        <div class="demo-card">
+          <h3>📊 Tabla de Datos</h3>
+          <p>Prueba: "¿Qué dice la tabla?", "¿Cuántas filas tiene la tabla?"</p>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #f8f9fa;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #eee;">Nombre</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #eee;">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #eee;">Item A</td>
+                <td style="padding: 10px; border: 1px solid #eee;">100</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #eee;">Item B</td>
+                <td style="padding: 10px; border: 1px solid #eee;">200</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #eee;">Item C</td>
+                <td style="padding: 10px; border: 1px solid #eee;">300</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SECCIONES PARA NAVEGACIÓN ========== -->
+    
+    <div id="section1" class="demo-section">
+      <h2>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sección 1
+      </h2>
+      <p>Esta es la primera sección. Puedes navegar aquí usando el comando "Ve a Sección 1" o "Desplázate hasta Sección 1".</p>
+      <div style="height: 300px; background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #667eea; font-size: 1.2em;">
+        Área de desplazamiento
+      </div>
+    </div>
+
+    <div id="section2" class="demo-section">
+      <h2>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sección 2
+      </h2>
+      <p>Esta es la segunda sección. Puedes probar comandos de scroll aquí.</p>
+      <div style="height: 300px; background: linear-gradient(135deg, #f0f7ff 0%, #d6e8ff 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #667eea; font-size: 1.2em;">
+        Más contenido para scroll
+      </div>
+    </div>
+
+    <div id="section3" class="demo-section">
+      <h2>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sección 3 - Final
+      </h2>
+      <p>Esta es la última sección. Puedes probar "Ve al final de la página" o "Desplázate hasta abajo".</p>
+      <div style="height: 200px; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #667eea; font-size: 1.2em;">
+        Final de la página
+      </div>
+    </div>
+
+    <!-- ========== COMANDOS DE VOZ RECOMENDADOS ========== -->
+    
+    <div class="demo-section">
+      <h2>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 10V12C19 15.866 15.866 19 12 19C8.13401 19 5 15.866 5 12V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 19V23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 23H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        🎤 Comandos de Voz Recomendados
+      </h2>
+      
+      <div class="voice-commands">
+        <div class="voice-command">
+          <strong>Navegación</strong>
+          <code>Desplázate hacia arriba</code>
+          <code>Desplázate hacia abajo</code>
+          <code>Ve al principio</code>
+          <code>Ve al final</code>
+          <code>Ve a Sección 1</code>
+        </div>
+        
+        <div class="voice-command">
+          <strong>Interacción</strong>
+          <code>Haz clic en Botón Principal</code>
+          <code>Haz clic en el botón de Éxito</code>
+          <code>Haz clic en Añadir al carrito</code>
+          <code>Haz clic en el primer producto</code>
+        </div>
+        
+        <div class="voice-command">
+          <strong>Formularios</strong>
+          <code>Escribe Hola en Nombre</code>
+          <code>Llena el campo Email con prueba@example.com</code>
+          <code>Selecciona Opción 2</code>
+          <code>Escribe un mensaje de prueba</code>
+        </div>
+        
+        <div class="voice-command">
+          <strong>Búsqueda</strong>
+          <code>Busca widget de voz</code>
+          <code>Busca inteligencia artificial</code>
+          <code>Busca agent-web</code>
+        </div>
+        
+        <div class="voice-command">
+          <strong>Preguntas</strong>
+          <code>¿Qué dice el título?</code>
+          <code>¿Cuántos botones hay?</code>
+          <code>¿Qué es Agent-Web?</code>
+          <code>Resúmeme esta página</code>
+          <code>¿Cuánto cuesta el Producto 2?</code>
+        </div>
+        
+        <div class="voice-command">
+          <strong>Control del Widget</strong>
+          <code>Abre el widget</code>
+          <code>Cierra el widget</code>
+          <code>Minimiza el widget</code>
+          <code>Habilita el micrófono</code>
+          <code>Deshabilita el micrófono</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ADVERTENCIAS DE SEGURIDAD ========== -->
+    
+    <div class="demo-section">
+      <div class="security-warning">
+        <h3>⚠️ Acciones Bloqueadas por Seguridad</h3>
+        <p>El widget <strong>NO permitirá</strong> las siguientes acciones:</p>
+        <ul>
+          <li>Hacer clic en campos de contraseña</li>
+          <li>Llenar campos de contraseña, tarjetas de crédito, CVC, SSN</li>
+          <li>Enviar formularios de login o pago</li>
+          <li>Navegar a URLs externas (fuera del mismo dominio)</li>
+          <li>Ejecutar scripts o código JavaScript</li>
+          <li>Acceder a iframes o elementos ocultos</li>
+        </ul>
+        <p style="margin-top: 15px;"><em>Estas restricciones son por tu seguridad y privacidad.</em></p>
+      </div>
+    </div>
+
+    <!-- ========== ESTADÍSTICAS ========== -->
+    
+    <div class="demo-section">
+      <h2>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 20H22V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 20H12V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 10H12V2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Estadísticas de la Página
+      </h2>
+      
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-number" id="stat-buttons">0</div>
+          <div class="stat-label">Botones</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" id="stat-inputs">0</div>
+          <div class="stat-label">Inputs</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" id="stat-links">0</div>
+          <div class="stat-label">Enlaces</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" id="stat-sections">3</div>
+          <div class="stat-label">Secciones</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p><strong>Agent-Web</strong> | Widget de Asistente de Voz con IA | Versión 1.0.0</p>
+      <p style="margin-top: 10px; font-size: 0.9em; color: #999;">
+        Desarrollado con Vanilla JS, Web Speech API y OpenAI
+      </p>
+    </footer>
+  </div>
+
+  <!-- ========== WIDGET AGENT-WEB ========== -->
+  
+  <!-- Incluir el widget -->
+  <script type="module">
+    import { createWidget } from './src/index.js';
+    
+    // Contar elementos para estadísticas
+    const buttons = document.querySelectorAll('button');
+    const inputs = document.querySelectorAll('input, textarea, select');
+    const links = document.querySelectorAll('a[href]');
+    
+    document.getElementById('stat-buttons').textContent = buttons.length;
+    document.getElementById('stat-inputs').textContent = inputs.length;
+    document.getElementById('stat-links').textContent = links.length;
+    
+    // Crear el widget con configuración de prueba
+    const widget = createWidget({
+      position: 'bottom-right',
+      theme: 'dark',
+      size: 'medium',
+      autoOpen: false,
+      voiceRate: 1,
+      voicePitch: 1,
+      voiceLang: 'es-ES',
+      model: 'gpt-3.5-turbo',
+      maxTokens: 200,
+      temperature: 0.3
+    });
+    
+    // Agregar mensaje de bienvenida
+    setTimeout(() => {
+      console.log('%c🎤 Agent-Web Widget Cargado', 'color: #667eea; font-size: 16px; font-weight: bold;');
+      console.log('%cHaz clic en el botón flotante para abrir el asistente', 'color: #666; font-size: 12px;');
+    }, 500);
+    
+    // Exponer widget a la consola para testing
+    window.AgentWebWidget = widget;
+  </script>
+</body>
+</html>

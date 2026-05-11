@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "name": "agent-web-widget",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist",
+        "installCommand": "npm install && npm run build"
+      }
+    }
+  ],
+  "routes": [
+    {"src": "/widget.js", "dest": "/dist/widget.js"},
+    {"src": "/widget.min.js", "dest": "/dist/widget.min.js"},
+    {"src": "/config\.html", "dest": "/public/config.html"},
+    {"src": "/config\.css", "dest": "/public/config-ui.css"},
+    {"src": "/config\.js", "dest": "/public/config-ui.js"},
+    {"src": "/config", "dest": "/public/config.html"},
+    {"src": "/(.*)", "dest": "/$1"}
+  ],
+  "rewrites": [
+    {"source": "/(.*)", "destination": "/$1"}
+  ]
+}

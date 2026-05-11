@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "name": "agent-web-backend",
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {"src": "/api/(.*)", "dest": "server.js", "methods": ["GET", "POST", "OPTIONS"]},
+    {"src": "/(.*)", "dest": "server.js", "methods": ["GET", "POST", "OPTIONS"]}
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
