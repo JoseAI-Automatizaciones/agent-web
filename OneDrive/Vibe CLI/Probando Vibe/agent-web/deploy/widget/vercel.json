@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "agent-web-widget",
   "builds": [
     {
       "src": "package.json",
