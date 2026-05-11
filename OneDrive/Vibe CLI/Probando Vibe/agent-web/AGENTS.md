@@ -68,6 +68,7 @@ Usuario Final → Página Web (con widget) → agent-web (client-side)
 > 3. Hacer `git add <archivos>` para stagear los cambios
 > 4. Hacer `git commit -m "descripción clara del cambio"`
 > 5. Hacer `git push` al repositorio **JoseAI-Automatizaciones/agent-web**
+> 6. **Hacer deploy a Vercel** si el cambio afecta al frontend o backend
 >
 > **❌ NUNCA** dejes cambios sin commit/push. **❌ NUNCA** trabajes en local sin sincronizar.
 
@@ -105,6 +106,128 @@ Usuario Final → Página Web (con widget) → agent-web (client-side)
 > 2. El cambio NO permite acciones peligrosas (ver `security.js`)
 > 3. El cambio NO expone datos sensibles
 > 4. El cambio NO rompe las validaciones existentes
+
+## 🚀 **DEPLOYS EN VERCEL (Cuenta: joseai-automatizaciones)**
+
+### 📋 **Proyectos Deployados**
+
+| Proyecto | Tipo | URL de Producción | Alias | Estado |
+|----------|------|-------------------|-------|--------|
+| **agent-web-backend** | Backend (Node.js) | https://agent-web-backend-m0ej37cpx-joseai-automatizaciones-projects.vercel.app | https://agent-web-backend.vercel.app | ✅ Deployado |
+| **agent-web-widget** | Frontend (Static) | https://agent-web-widget-3ba2oyu4x-joseai-automatizaciones-projects.vercel.app | https://agent-web-widget.vercel.app | ✅ Deployado |
+
+### 🔗 **Conexión entre Frontend y Backend**
+
+El widget frontend está configurado para usar el backend por defecto:
+```javascript
+// En deploy/widget/src/index.js
+const DEFAULT_BACKEND_URL = 'https://agent-web-backend.vercel.app';
+```
+
+Los usuarios pueden sobrescribir esta URL usando el atributo `data-backend-url`:
+```html
+<script src="https://agent-web-widget.vercel.app/widget.js"
+  data-api-key="sk-..."
+  data-backend-url="https://mi-backend-personalizado.com"></script>
+```
+
+### 📁 **Estructura de Directorios de Deploy**
+
+```
+agent-web/
+├── deploy/
+│   ├── backend/           ← Backend proxy (Node.js)
+│   │   ├── server.js
+│   │   ├── config/
+│   │   │   └── index.js
+│   │   ├── middleware/
+│   │   │   ├── auth.js
+│   │   │   └── rate-limiter.js
+│   │   ├── routes/
+│   │   │   └── chat.js
+│   │   ├── package.json
+│   │   └── vercel.json
+│   │
+│   └── widget/            ← Frontend (Static)
+│       ├── src/
+│       │   ├── index.js
+│       │   ├── core/
+│       │   │   ├── action-engine.js
+│       │   │   ├── config.js
+│       │   │   ├── dom-analyzer.js
+│       │   │   ├── llm-client.js
+│       │   │   └── voice-manager.js
+│       │   ├── ui/
+│       │   │   └── widget.js
+│       │   └── utils/
+│       │       ├── constants.js
+│       │       ├── helpers.js
+│       │       └── security.js
+│       ├── package.json
+│       ├── vite.config.js
+│       └── vercel.json
+```
+
+### 🚀 **Comandos para Redeploy**
+
+**Backend:**
+```bash
+cd deploy/backend
+git add -A
+git commit -m "descripción del cambio"
+vercel --prod --yes
+```
+
+**Frontend:**
+```bash
+cd deploy/widget
+npm install
+git add -A
+git commit -m "descripción del cambio"
+vercel --prod --yes
+```
+
+### 📝 **Variables de Entorno (Backend)**
+
+Para configurar el backend en Vercel, añadir las siguientes variables de entorno:
+
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `OPENAI_API_KEY` | API key de OpenAI | `sk-...` |
+| `OPENROUTER_API_KEY` | API key de OpenRouter (alternativa) | `sk-or-...` |
+| `OPENROUTER_BASE_URL` | URL base de OpenRouter | `https://openrouter.ai/api/v1` |
+| `CORS_ORIGIN` | Orígenes permitidos para CORS | `*` o `https://tudominio.com` |
+| `VALID_CLIENT_KEYS` | API keys de clientes autorizados | `key1,key2,key3` |
+| `RATE_LIMIT_WINDOW` | Ventana de rate limiting (segundos) | `60` |
+| `RATE_LIMIT_MAX_REQUESTS` | Máximo de requests por IP | `100` |
+
+### 🎯 **Uso del Widget con Backend Deployado**
+
+**Opción 1: Usar backend por defecto**
+```html
+<script src="https://agent-web-widget.vercel.app/widget.js"
+  data-api-key="TU_API_KEY_DE_OPENAI"></script>
+```
+
+**Opción 2: Especificar backend personalizado**
+```html
+<script src="https://agent-web-widget.vercel.app/widget.js"
+  data-api-key="TU_API_KEY_DE_OPENAI"
+  data-backend-url="https://mi-backend.com"></script>
+```
+
+**Opción 3: Configuración completa**
+```html
+<script src="https://agent-web-widget.vercel.app/widget.js"
+  data-api-key="TU_API_KEY_DE_OPENAI"
+  data-backend-url="https://agent-web-backend.vercel.app"
+  data-model="gpt-4o"
+  data-widget-position="bottom-right"
+  data-primary-color="#52d1b2"
+  data-voice-lang="es-ES"></script>
+```
+
+---
 
 ## 🤖 Notas CRÍTICAS para Agentes IA
 
@@ -182,3 +305,4 @@ AGENTS.md (este archivo)
 > 4. ¿Hay un error similar documentado en TROUBLESHOOTING.md?
 > 5. **¿Se documentó el cambio en los archivos .md correspondientes?**
 > 6. **¿Se hizo commit y push de los cambios?**
+> 7. **¿Se redeployó a Vercel después del cambio?**
