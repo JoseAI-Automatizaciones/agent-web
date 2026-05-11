@@ -9,12 +9,9 @@ import { init as initWidget, destroy } from './ui/widget.js';
 import { setApiKey, getApiKey, clearApiKey, setBackendUrl, getBackendUrl } from './core/llm-client.js';
 import { validateConfig } from './core/config.js';
 
-<<<<<<< HEAD
 // URL del backend por defecto (deployado en Vercel)
 const DEFAULT_BACKEND_URL = 'https://agent-web-backend.vercel.app';
 
-=======
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
 /**
  * @typedef {Object} WebAgent
  * @property {Function} init - Inicializa el widget
@@ -28,11 +25,7 @@ const DEFAULT_BACKEND_URL = 'https://agent-web-backend.vercel.app';
  * @property {Function} setBackendUrl - Configura la URL del backend proxy
  * @property {Function} getBackendUrl - Obtiene la URL del backend proxy
  * @property {Function} setConfig - Configura el widget
-<<<<<<< HEAD
  * @property {Function} sendMessage - Envia un mensaje al LLM
-=======
- * @property {Function} sendMessage - Envía un mensaje al LLM
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
  * @property {Function} startListening - Inicia reconocimiento de voz
  * @property {Function} stopListening - Detiene reconocimiento de voz
  * @property {Function} addMessage - Añade un mensaje manualmente al chat
@@ -62,18 +55,12 @@ function init(config = {}, onOpen = null, onClose = null, onError = null) {
       setApiKey(validatedConfig.apiKey);
     }
     
-<<<<<<< HEAD
     // Configurar backend URL si se proporciona, sino usar el por defecto
     if (validatedConfig.backendUrl) {
       setBackendUrl(validatedConfig.backendUrl);
     } else {
       // Usar backend por defecto
       setBackendUrl(DEFAULT_BACKEND_URL);
-=======
-    // Configurar backend URL si se proporciona
-    if (validatedConfig.backendUrl) {
-      setBackendUrl(validatedConfig.backendUrl);
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
     }
     
     // Inicializar el widget
@@ -152,11 +139,7 @@ function init(config = {}, onOpen = null, onClose = null, onError = null) {
       },
       
       /**
-<<<<<<< HEAD
        * Envia un mensaje al LLM
-=======
-       * Envía un mensaje al LLM
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
        * @param {string} message - Mensaje a enviar
        */
       sendMessage: (message) => {
@@ -226,11 +209,7 @@ function init(config = {}, onOpen = null, onClose = null, onError = null) {
 function autoInit() {
   try {
     // Verificar si el script tiene atributos data-
-<<<<<<< HEAD
     const scripts = document.querySelectorAll('script[data-agent-web], script[src*="widget"]');
-=======
-    const scripts = document.querySelectorAll('script[data-agent-web], script[src*="agent-web"]');
->>>>>>> ae6283b41c385eac28f3a606c41b780c14ea6553
     
     for (const script of scripts) {
       const config = {};
