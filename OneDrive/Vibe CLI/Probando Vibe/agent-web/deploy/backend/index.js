@@ -1,19 +1,19 @@
 /**
- * @file server.js
- * @description Servidor backend para agent-web - Proxy a OpenAI API
+ * @file index.js
+ * @description Backend server para agent-web - Proxy a OpenAI API
  * Adaptado para Vercel Serverless Functions
  * @author agent-web
  */
 
-import { PORT, NODE_ENV, CORS_ORIGIN } from './config/index.js';
-import { logger } from './middleware/auth.js';
-import { chatHandler, tokensHandler } from './routes/chat.js';
-import { checkIpRateLimit } from './middleware/rate-limiter.js';
-
 // ===== Request Handler para Vercel Serverless Functions =====
-// Vercel pasa el request y response directamente, sin necesitar server.listen()
 export default async function handler(req, res) {
   try {
+    // Importar dependencias de forma lazy para evitar problemas de carga
+    const { PORT, NODE_ENV, CORS_ORIGIN } = await import('./config/index.js');
+    const { logger, withCors, parseJsonBody } = await import('./middleware/auth.js');
+    const { checkIpRateLimit } = await import('./middleware/rate-limiter.js');
+    const { chatHandler, tokensHandler } = await import('./routes/chat.js');
+
     // Configurar CORS headers
     res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
@@ -31,7 +31,8 @@ export default async function handler(req, res) {
     }
     
     // Log de la peticion
-    logger.info(`${req.method} ${req.url} - ${req.socket?.remoteAddress || req.headers['x-forwarded-for'] || 'unknown'}`);
+    const ip = req.socket?.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
+    logger.info(`${req.method} ${req.url} - ${ip}`);
     
     // ===== Rutas =====
     
@@ -50,7 +51,6 @@ export default async function handler(req, res) {
     // Proxy a OpenAI Chat API
     if (req.method === 'POST' && req.url === '/api/chat') {
       // Validar rate limiting por IP
-      const ip = req.socket?.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
       const rateLimit = checkIpRateLimit(ip);
       
       if (!rateLimit.allowed) {
@@ -87,70 +87,20 @@ export default async function handler(req, res) {
     }));
     
   } catch (error) {
-    logger.error(`Error inesperado: ${error.message}`);
-    logger.error(error.stack);
+    // Intentar importar logger para el error, si no, usar console.error
+    try {
+      const { logger } = await import('./middleware/auth.js');
+      logger.error(`Error inesperado: ${error.message}`);
+      logger.error(error.stack);
+    } catch (e) {
+      console.error(`Error inesperado: ${error.message}`);
+      console.error(error.stack);
+    }
     
     res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
-      error: 'Internal server error',
+      error: error.message || 'Internal server error',
       code: 'INTERNAL_ERROR'
     }));
   }
-}
-
-// ===== Para uso local (fuera de Vercel) =====
-// Solo se usa cuando se ejecuta con `node server.js` localmente
-if (process.env.NODE_ENV !== 'production' || process.env.VERCEL_ENV !== '1') {
-  import http from 'node:http';
-  
-  const server = http.createServer(handler);
-  
-  // Manejar errores del servidor
-  server.on('error', (error) => {
-    logger.error(`Error del servidor: ${error.message}`);
-    process.exit(1);
-  });
-  
-  // Manejar cierre graceful
-  process.on('SIGTERM', () => {
-    logger.info('Recibida senal SIGTERM. Cerrando servidor...');
-    server.close(() => {
-      logger.info('Servidor cerrado.');
-      process.exit(0);
-    });
-    
-    setTimeout(() => {
-      logger.error('Cierre forzado despues de timeout.');
-      process.exit(1);
-    }, 30000);
-  });
-  
-  process.on('SIGINT', () => {
-    logger.info('Recibida senal SIGINT. Cerrando servidor...');
-    server.close(() => {
-      logger.info('Servidor cerrado.');
-      process.exit(0);
-    });
-    
-    setTimeout(() => {
-      logger.error('Cierre forzado despues de timeout.');
-      process.exit(1);
-    }, 30000);
-  });
-  
-  // Iniciar Servidor local
-  const PORT_LOCAL = PORT || 3002;
-  server.listen(PORT_LOCAL, () => {
-    logger.info(`═══════════════════════════════════════════`);
-    logger.info(`🚀 Backend server de agent-web funcionando`);
-    logger.info(`   Entorno: ${NODE_ENV}`);
-    logger.info(`   Puerto: ${PORT_LOCAL}`);
-    logger.info(`   URL: http://localhost:${PORT_LOCAL}`);
-    logger.info(`═══════════════════════════════════════════`);
-    logger.info('Endpoints disponibles:');
-    logger.info('  POST /api/chat - Proxy a OpenAI Chat API');
-    logger.info('  POST /api/tokens - Generar tokens efimeros');
-    logger.info('  GET /api/health - Health check');
-    logger.info(`═══════════════════════════════════════════`);
-  });
 }
