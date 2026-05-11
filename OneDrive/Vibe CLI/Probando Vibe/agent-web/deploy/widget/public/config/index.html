@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurador de Widget - agent-web</title>
+    <meta name="description" content="Configura tu widget de agente de voz IA para tu pagina web">
+    <link rel="stylesheet" href="./config-ui.css">
+</head>
+<body>
+    <div class="config-container">
+        <header class="config-header">
+            <div class="logo">
+                <span class="logo-icon">🤖</span>
+                <h1>agent-web</h1>
+            </div>
+            <p class="subtitle">Configurador de Widget de Voz con IA</p>
+        </header>
+
+        <main class="config-main">
+            <section class="config-section" id="api-section">
+                <h2>⚙️ Configuración de API</h2>
+                <div class="form-group">
+                    <label for="apiKey">API Key de OpenAI <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="password" id="apiKey" placeholder="sk-..." required>
+                        <button class="btn-icon toggle-visibility" type="button" title="Mostrar/Ocultar">
+                            <span class="icon">👁️</span>
+                        </button>
+                    </div>
+                    <p class="help-text">Tu API key de OpenAI. <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener">Obtener API Key</a></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="backendUrl">URL del Backend Proxy (opcional)</label>
+                    <input type="url" id="backendUrl" placeholder="https://agent-web-backend.vercel.app">
+                    <p class="help-text">Deja vacío para usar el backend por defecto. El backend evita problemas CORS.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="model">Modelo de IA</label>
+                    <select id="model">
+                        <option value="gpt-4o">GPT-4o (Recomendado)</option>
+                        <option value="gpt-4o-mini">GPT-4o Mini (Más rápido, más barato)</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Económico)</option>
+                        <option value="gpt-3.5-turbo-16k">GPT-3.5 Turbo 16K</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="config-section" id="ui-section">
+                <h2>🎨 Personalización de UI</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="widgetPosition">Posición del Widget</label>
+                        <select id="widgetPosition">
+                            <option value="bottom-right">Abajo a la Derecha</option>
+                            <option value="bottom-left">Abajo a la Izquierda</option>
+                            <option value="top-right">Arriba a la Derecha</option>
+                            <option value="top-left">Arriba a la Izquierda</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="language">Idioma</label>
+                        <select id="language">
+                            <option value="es">Español</option>
+                            <option value="en">Inglés</option>
+                            <option value="fr">Francés</option>
+                            <option value="de">Alemán</option>
+                            <option value="pt">Portugués</option>
+                            <option value="it">Italiano</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Colores del Widget</label>
+                    <div class="color-pickers">
+                        <div class="color-picker">
+                            <label for="primaryColor">Color Principal</label>
+                            <div class="color-input">
+                                <input type="color" id="primaryColor" value="#52d1b2">
+                                <input type="text" id="primaryColorText" value="#52d1b2" maxlength="7" placeholder="#52d1b2">
+                            </div>
+                        </div>
+                        <div class="color-picker">
+                            <label for="secondaryColor">Color Secundario</label>
+                            <div class="color-input">
+                                <input type="color" id="secondaryColor" value="#07111f">
+                                <input type="text" id="secondaryColorText" value="#07111f" maxlength="7" placeholder="#07111f">
+                            </div>
+                        </div>
+                        <div class="color-picker">
+                            <label for="textColor">Color de Texto</label>
+                            <div class="color-input">
+                                <input type="color" id="textColor" value="#ebf4ff">
+                                <input type="text" id="textColorText" value="#ebf4ff" maxlength="7" placeholder="#ebf4ff">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="width">Ancho del Widget</label>
+                        <input type="text" id="width" value="360px" placeholder="360px">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxHeight">Altura Máxima</label>
+                        <input type="text" id="maxHeight" value="600px" placeholder="600px">
+                    </div>
+                </div>
+            </section>
+
+            <section class="config-section" id="voice-section">
+                <h2>🎤 Configuración de Voz</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="voiceLang">Idioma de la Voz</label>
+                        <select id="voiceLang">
+                            <option value="es-ES">Español (España)</option>
+                            <option value="es-MX">Español (México)</option>
+                            <option value="en-US">Inglés (EE.UU.)</option>
+                            <option value="en-GB">Inglés (Reino Unido)</option>
+                            <option value="fr-FR">Francés</option>
+                            <option value="de-DE">Alemán</option>
+                            <option value="pt-BR">Portugués (Brasil)</option>
+                            <option value="it-IT">Italiano</option>
+                            <option value="ja-JP">Japonés</option>
+                            <option value="ko-KR">Coreano</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="voiceRate">Velocidad de la Voz</label>
+                        <input type="range" id="voiceRate" min="0.1" max="10" step="0.1" value="1">
+                        <span class="range-value" id="voiceRateValue">1</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="voicePitch">Tono de la Voz</label>
+                    <input type="range" id="voicePitch" min="0" max="2" step="0.1" value="1">
+                    <span class="range-value" id="voicePitchValue">1</span>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="autoListenOnOpen">
+                        <span>Escuchar automáticamente al abrir</span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="config-section" id="llm-section">
+                <h2>🧠 Configuración de IA</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="maxTokens">Máximo de Tokens por Respuesta</label>
+                        <input type="number" id="maxTokens" min="1" max="4000" value="150">
+                        <p class="help-text">Cantidad máxima de tokens en la respuesta</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="temperature">Temperatura (Creatividad)</label>
+                        <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7">
+                        <span class="range-value" id="temperatureValue">0.7</span>
+                        <p class="help-text">0 = Más determinista, 2 = Más creativo</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="systemPrompt">Prompt del Sistema (opcional)</label>
+                    <textarea id="systemPrompt" rows="3" placeholder="Eres un asistente de voz amigable...">Eres un asistente de voz amigable y util. Tu trabajo es ayudar al usuario a interactuar con la pagina web actual. Puedes responder preguntas sobre el contenido de la pagina y realizar acciones seguras como hacer clic en botones, desplazarte o buscar informacion. SIMPRE responde en el idioma del usuario. NO inventes informacion que no este en la pagina. SI no estas seguro de algo, di que no lo sabes.</textarea>
+                    <p class="help-text">El prompt que define el comportamiento del asistente</p>
+                </div>
+            </section>
+
+            <section class="config-section" id="behavior-section">
+                <h2>🎯 Comportamiento</h2>
+
+                <div class="checkbox-grid">
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="autoOpen" checked>
+                            <span>Abrir automáticamente al cargar</span>
+                        </label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="showTimestamp">
+                            <span>Mostrar hora de los mensajes</span>
+                        </label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="rememberHistory">
+                            <span>Recordar historial de chat</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxHistoryLength">Máximo de mensajes en historial</label>
+                    <input type="number" id="maxHistoryLength" min="1" max="100" value="50">
+                </div>
+            </section>
+
+            <section class="config-section" id="preview-section">
+                <h2>👀 Vista Previa</h2>
+                <div class="preview-container">
+                    <div class="preview-widget" id="previewWidget">
+                        <div class="preview-message user">Hola, ¿cómo estás?</div>
+                        <div class="preview-message agent">¡Hola! Estoy aquí para ayudarte con esta página web.</div>
+                    </div>
+                    <div class="preview-button" id="previewButton">
+                        <span class="button-text">Probar Widget</span>
+                        <span class="button-icon">▶️</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="config-section" id="code-section">
+                <h2>📋 Código para tu Página Web</h2>
+                <p class="help-text">Copia este código y pégalo en el <code>&lt;body&gt;</code> de tu página web:</p>
+                <div class="code-container">
+                    <pre id="embedCode" class="code-block"><code>&lt;script src="https://agent-web-widget.vercel.app/widget.js" 
+  data-api-key="TU_API_KEY"&gt;&lt;/script&gt;</code></pre>
+                    <div class="code-actions">
+                        <button class="btn btn-primary" id="copyCodeBtn">
+                            <span class="btn-icon">📋</span> Copiar Código
+                        </button>
+                        <button class="btn btn-secondary" id="copyWithConfigBtn">
+                            <span class="btn-icon">⚙️</span> Copiar con Configuración
+                        </button>
+                    </div>
+                </div>
+                <div class="copy-notification" id="copyNotification"></div>
+            </section>
+        </main>
+
+        <footer class="config-footer">
+            <div class="footer-info">
+                <p>¿Necesitas ayuda? <a href="https://github.com/JoseAI-Automatizaciones/agent-web" target="_blank">Documentación</a> | <a href="mailto:soporte@joseai.cl">Soporte</a></p>
+            </div>
+            <div class="footer-version">
+                <p>agent-web v1.0.0 | <a href="https://vercel.com/joseai-automatizaciones/agent-web-widget" target="_blank">Ver Deploy</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="./config-ui.js"></script>
+</body>
+</html>

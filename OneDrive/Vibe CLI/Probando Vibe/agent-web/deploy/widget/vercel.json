@@ -8,8 +8,5 @@
         "distDir": "dist"
       }
     }
-  ],
-  "rewrites": [
-    {"source": "/config", "destination": "/dist/config.html"}
   ]
 }
