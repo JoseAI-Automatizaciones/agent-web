@@ -85,16 +85,28 @@ const GlassNodeMaterial = ({
   );
 };
 
-// Node types with colors matching CLAUDE.md spec
-const NODE_COLORS: Record<string, { main: string; glow: string; inner: string; halo: string }> = {
-  core: { main: "#ffffff", glow: "#ffffff", inner: "#e0e0e0", halo: "#ffffff" },
-  workspace: { main: "#10b981", glow: "#34d399", inner: "#059669", halo: "#d1fae5" },
-  file: { main: "#60a5fa", glow: "#93c5fd", inner: "#3b82f6", halo: "#dbeafe" },
-  decision: { main: "#fbbf24", glow: "#facc15", inner: "#eab308", halo: "#fef3c7" },
-  session: { main: "#22d3ee", glow: "#67e8f9", inner: "#06b6d4", halo: "#ccfbf1" },
-  skill: { main: "#f472b6", glow: "#f9a8d4", inner: "#ec4899", halo: "#fce7f3" },
-  stale: { main: "#f97316", glow: "#fb923c", inner: "#ea580c", halo: "#fed7aa" },
-  missing: { main: "#ef4444", glow: "#f87171", inner: "#dc2626", halo: "#fee2e2" },
+// Node types with AI model-specific colors
+const NODE_COLORS: Record<string, { main: string; glow: string; inner: string; halo: string; label: string }> = {
+  claude: { main: "#8B5CF6", glow: "#A78BFA", inner: "#7C3AED", halo: "#E9D5FF", label: "Claude" },
+  codex: { main: "#10B981", glow: "#34D399", inner: "#059669", halo: "#D1FAE5", label: "Codex" },
+  mistral: { main: "#EF4444", glow: "#F87171", inner: "#DC2626", halo: "#FEE2E2", label: "Mistral" },
+  antigravity: { main: "#06B6D4", glow: "#22D3EE", inner: "#0891B2", halo: "#CCFBF1", label: "Antigravity" },
+  core: { main: "#FFFFFF", glow: "#FFFFFF", inner: "#E0E0E0", halo: "#FFFFFF", label: "Core" },
+  workspace: { main: "#10B981", glow: "#34D399", inner: "#059669", halo: "#D1FAE5", label: "Workspace" },
+  file: { main: "#60A5FA", glow: "#93C5FD", inner: "#3B82F6", halo: "#DBEAFE", label: "File" },
+  decision: { main: "#FBBF24", glow: "#FACC15", inner: "#EAB308", halo: "#FEF3C7", label: "Decision" },
+  session: { main: "#22D3EE", glow: "#67E8F9", inner: "#06B6D4", halo: "#CCFBF1", label: "Session" },
+  skill: { main: "#F472B6", glow: "#F9A8D4", inner: "#EC4899", halo: "#FCE7F3", label: "Skill" },
+  stale: { main: "#F97316", glow: "#FB923C", inner: "#EA580C", halo: "#FED7AA", label: "Stale" },
+  missing: { main: "#EF4444", glow: "#F87171", inner: "#DC2626", halo: "#FEE2E2", label: "Missing" },
+};
+
+// AI Model colors for quick identification
+const AI_MODEL_COLORS: Record<string, string> = {
+  claude: "#8B5CF6",
+  codex: "#10B981",
+  mistral: "#EF4444",
+  antigravity: "#06B6D4",
 };
 
 // Connection colors
@@ -221,26 +233,37 @@ function NeuralNodeComponent({
   node,
   onClick,
   isHighlighted,
+  isFrozen,
+  isHovered,
 }: {
   node: NeuralNode;
   onClick: (node: NeuralNode) => void;
   isHighlighted: boolean;
+  isFrozen: boolean;
+  isHovered: boolean;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const colors = NODE_COLORS[node.type] || NODE_COLORS.core;
   const timeRef = useRef({ value: 0 });
   
   useFrame((state, delta) => {
-    if (meshRef.current) {
-      // Subtle pulsing
+    if (groupRef.current) {
       timeRef.current.value += delta;
-      const scale = node.size * (1 + Math.sin(timeRef.current.value * 2) * 0.02);
-      meshRef.current.scale.setScalar(scale);
+      
+      // Node size with hover effect
+      const baseSize = node.size;
+      const hoverScale = isHovered ? 1.3 : 1.0;
+      const pulseScale = !isFrozen ? (1 + Math.sin(timeRef.current.value * 2) * 0.02) : 1.0;
+      const finalScale = baseSize * hoverScale * pulseScale;
+      
+      groupRef.current.scale.setScalar(finalScale);
     }
   });
 
   return (
     <group
+      ref={groupRef}
       position={node.position}
       onClick={(e) => {
         e.stopPropagation();
@@ -258,22 +281,22 @@ function NeuralNodeComponent({
         />
       </mesh>
       
-      {/* Glow effect */}
+      {/* Glow effect - stronger when hovered */}
       <pointLight 
         position={[0, 0, 0]} 
         color={colors.glow}
-        intensity={isHighlighted ? 3 : 1}
-        distance={node.size * 15}
+        intensity={isHovered ? 5 : isHighlighted ? 3 : 1.5}
+        distance={node.size * (isHovered ? 20 : 15)}
         decay={2}
       />
       
-      {/* Halo ring - animated */}
+      {/* Halo ring - animated and larger when hovered */}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[node.size * 1.5, node.size * 2.5, 32]} />
+        <ringGeometry args={[node.size * (isHovered ? 2.5 : 1.5), node.size * (isHovered ? 3.5 : 2.5), 32]} />
         <meshBasicMaterial 
           color={colors.halo} 
           transparent 
-          opacity={0.05 + (isHighlighted ? 0.15 : 0) + Math.sin(timeRef.current.value * 3) * 0.02}
+          opacity={0.05 + (isHighlighted ? 0.15 : 0) + (isHovered ? 0.2 : 0) + Math.sin(timeRef.current.value * 3) * 0.02}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -562,6 +585,51 @@ function CyberpunkBackground() {
   );
 }
 
+// Raycaster for hover detection
+const NodeRaycaster = ({ nodes, onHover, onUnhover }: { 
+  nodes: NeuralNode[]; 
+  onHover: (nodeId: string) => void; 
+  onUnhover: () => void;
+}) => {
+  const { camera, raycaster, mouse, gl } = useThree();
+  
+  useFrame(() => {
+    if (!gl.domElement) return;
+    
+    // Update raycaster
+    raycaster.setFromCamera(mouse, camera);
+    
+    // Create a map of node meshes for raycasting
+    const intersects: THREE.Intersection[] = [];
+    
+    nodes.forEach((node) => {
+      const dummyMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(node.size, 32, 32),
+        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.01 })
+      );
+      dummyMesh.position.copy(node.position);
+      dummyMesh.updateMatrixWorld();
+      
+      const nodeIntersects = raycaster.intersectObject(dummyMesh);
+      if (nodeIntersects.length > 0) {
+        intersects.push({ ...nodeIntersects[0], object: { userData: { nodeId: node.id } } } as any);
+      }
+    });
+    
+    if (intersects.length > 0) {
+      const closest = intersects[0];
+      const nodeId = (closest.object as any)?.userData?.nodeId;
+      if (nodeId) {
+        onHover(nodeId);
+      }
+    } else {
+      onUnhover();
+    }
+  });
+  
+  return null;
+};
+
 // Main graph component
 function NeuralNetworkGraphInner({
   nodes: externalNodes,
@@ -572,8 +640,10 @@ function NeuralNetworkGraphInner({
 }) {
   const { camera, gl, scene } = useThree();
   const [selectedNode, setSelectedNode] = useState<NodePathInfo | null>(null);
+  const [frozen, setFrozen] = useState(false);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   
-  // Generate nodes if not provided
+  // Generate nodes if not provided - with AI model types
   const nodes = useMemo<NeuralNode[]>(() => {
     if (externalNodes && externalNodes.length > 0) return externalNodes;
     
@@ -582,8 +652,9 @@ function NeuralNetworkGraphInner({
     const layerSpacing = 15;
     const nodeSpacing = 4;
     
+    // AI model types for nodes
+    const aiModels = ["claude", "codex", "mistral", "antigravity"];
     const generatedNodes: NeuralNode[] = [];
-    const types = ["core", "workspace", "file", "decision", "session", "skill"];
     
     for (let layer = 0; layer < layers; layer++) {
       const layerX = (layer - Math.floor(layers / 2)) * layerSpacing;
@@ -593,13 +664,14 @@ function NeuralNetworkGraphInner({
         const y = (i - count / 2) * nodeSpacing + (Math.random() - 0.5) * 2;
         const z = (Math.random() - 0.5) * 3;
         
-        const type = types[layer % types.length];
+        // Use AI model types for nodes
+        const type = aiModels[Math.floor(Math.random() * aiModels.length)];
         generatedNodes.push({
           id: `node-${layer}-${i}`,
           type,
           position: new THREE.Vector3(layerX, y, z),
-          size: 0.3 + Math.random() * 0.2,
-          content: `Memory Node: Layer ${layer + 1}, Node ${i + 1}\nType: ${type}\nConnected to: ${Math.floor(Math.random() * 5) + 1} nodes`,
+          size: 0.4 + Math.random() * 0.2,
+          content: `AI Model: ${type.toUpperCase()}\nLayer ${layer + 1}, Node ${i + 1}\nStatus: Active\nConnections: ${Math.floor(Math.random() * 5) + 1}`,
           connections: [],
         });
       }
@@ -715,15 +787,25 @@ function NeuralNetworkGraphInner({
   const handleNodeClick = (node: NeuralNode) => {
     const path = findPath(node.id);
     setSelectedNode({ node, path });
+    setFrozen(true); // Freeze the network animation
     onNodeSelect?.(node, path);
   };
 
-  // Auto-rotate camera
-  useFrame(() => {
-    camera.position.x = Math.cos(Date.now() * 0.0003) * 80;
-    camera.position.y = Math.sin(Date.now() * 0.0002) * 30;
-    camera.position.z = Math.sin(Date.now() * 0.0003) * 80 + 50;
-    camera.lookAt(0, 0, 0);
+  const handleClose = () => {
+    setSelectedNode(null);
+    setFrozen(false); // Unfreeze when closed
+  };
+
+  // Camera movement - galaxy effect
+  const cameraTimeRef = useRef({ value: 0 });
+  useFrame((state, delta) => {
+    if (!frozen) {
+      cameraTimeRef.current.value += delta * 0.3;
+      camera.position.x = Math.cos(cameraTimeRef.current.value) * 80;
+      camera.position.y = Math.sin(cameraTimeRef.current.value * 0.8) * 30;
+      camera.position.z = Math.sin(cameraTimeRef.current.value * 0.5) * 80 + 50;
+      camera.lookAt(0, 0, 0);
+    }
   });
 
   return (
@@ -762,6 +844,13 @@ function NeuralNetworkGraphInner({
         <DataPulseParticles connections={connections} />
       </Suspense>
       
+      {/* Raycaster for hover detection */}
+      <NodeRaycaster 
+        nodes={nodes} 
+        onHover={setHoveredNodeId} 
+        onUnhover={() => setHoveredNodeId(null)} 
+      />
+      
       {/* Nodes */}
       {nodes.map((node) => (
         <NeuralNodeComponent
@@ -769,6 +858,8 @@ function NeuralNetworkGraphInner({
           node={node}
           onClick={handleNodeClick}
           isHighlighted={selectedNode?.node.id === node.id || selectedNode?.path.includes(node.id)}
+          isFrozen={frozen}
+          isHovered={hoveredNodeId === node.id}
         />
       ))}
       
@@ -814,7 +905,7 @@ function NeuralNetworkGraphInner({
       {selectedNode && (
         <HtmlOverlay 
           position={selectedNode.node.position.clone().add(new THREE.Vector3(5, 5, 0))}
-          onClose={() => setSelectedNode(null)}
+          onClose={handleClose}
           node={selectedNode.node}
           path={selectedNode.path}
         />
@@ -866,6 +957,22 @@ function HtmlOverlay({
     return colors.main;
   };
 
+  const getTypeLabel = (type: string) => {
+    const colors = NODE_COLORS[type] || NODE_COLORS.core;
+    return colors.label || type;
+  };
+
+  // Get AI model icon/emoji
+  const getModelIcon = (type: string) => {
+    const icons: Record<string, string> = {
+      claude: "🤖",
+      codex: "🧠",
+      mistral: "⚡",
+      antigravity: "🚀",
+    };
+    return icons[type] || "🔗";
+  };
+
   return (
     <div
       style={{
@@ -873,28 +980,29 @@ function HtmlOverlay({
         left: `${screenPosition.x}px`,
         top: `${screenPosition.y}px`,
         transform: "translate(-50%, -50%)",
-        background: "rgba(6, 10, 22, 0.95)",
-        backdropFilter: "blur(10px)",
-        border: "1px solid rgba(0, 255, 255, 0.3)",
-        borderRadius: "12px",
-        padding: "16px",
-        maxWidth: "300px",
+        background: "rgba(10, 10, 20, 0.98)",
+        backdropFilter: "blur(12px)",
+        border: `1px solid ${getTypeColor(node.type)}`,
+        borderRadius: "16px",
+        padding: "20px",
+        maxWidth: "320px",
         color: "white",
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-        fontSize: "12px",
+        fontSize: "13px",
         zIndex: 1000,
-        boxShadow: "0 0 30px rgba(0, 255, 255, 0.3)",
-        transition: "all 0.2s ease",
+        boxShadow: `0 0 40px ${getTypeColor(node.type)}40`,
+        transition: "all 0.3s ease",
       }}
     >
-      <div style={{ marginBottom: "8px", fontWeight: "bold", color: getTypeColor(node.type) }}>
-        {node.type.toUpperCase()}
+      <div style={{ marginBottom: "12px", fontWeight: "bold", fontSize: "16px", color: getTypeColor(node.type), display: "flex", alignItems: "center", gap: "8px" }}>
+        <span style={{ fontSize: "20px" }}>{getModelIcon(node.type)}</span>
+        <span>{getTypeLabel(node.type).toUpperCase()}</span>
       </div>
-      <div style={{ marginBottom: "8px", fontSize: "11px", color: "#9ca3af", fontFamily: "monospace" }}>
+      <div style={{ marginBottom: "8px", fontSize: "11px", color: "#6b7280", fontFamily: "monospace" }}>
         ID: {node.id}
       </div>
-      <div style={{ marginBottom: "12px", color: "#d1d5db", fontSize: "13px" }}>
-        {node.content.split("\n")[0]}
+      <div style={{ marginBottom: "16px", color: "#d1d5db", fontSize: "14px", lineHeight: "1.5" }}>
+        {node.content.split("\n").slice(0, 2).join("\n")}
       </div>
       
       <div style={{ marginBottom: "12px" }}>
@@ -989,7 +1097,11 @@ function NeuralNetworkGraphComponent({
 }) {
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
-      <Canvas camera={{ position: [0, 0, 50], fov: 60 }} gl={{ antialias: true, alpha: true }}>
+      <Canvas 
+        camera={{ position: [0, 0, 50], fov: 60, near: 0.1, far: 1000 }} 
+        gl={{ antialias: true, alpha: true }}
+        onPointerMissed={() => {}}
+      >
         <Suspense fallback={null}>
           <NeuralNetworkGraphInner nodes={externalNodes} onNodeSelect={onNodeSelect} />
         </Suspense>
